@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://ns.adobe.com/air/application/1.0">
+  <id>net.dentone.air-DistrictVoucherEntry</id>
+  <filename>DistrictVoucherEntry</filename>
+  <name>District Voucher Entry</name>
+  <description>This application makes it easy to submit vouchers to the Spokane County Auditor</description>
+  <version>0.8 beta</version>
+
+  <initialWindow>
+    <content>home.html</content>
+	<title>District Voucher Entry</title>
+	<systemChrome>standard</systemChrome>
+	<transparent>false</transparent>
+    <visible>true</visible>
+	<minimizable>true</minimizable>
+	<maximizable>true</maximizable>
+	<resizable>true</resizable>
+    <width>775</width>
+    <height>445</height>
+  </initialWindow>
+
+  <icon>
+    <image16x16>icons/DistrictVoucherEntry-16.png</image16x16>
+    <image32x32>icons/DistrictVoucherEntry-32.png</image32x32>
+    <image48x48>icons/DistrictVoucherEntry-48.png</image48x48>
+    <image128x128>icons/DistrictVoucherEntry-128.png</image128x128>
+  </icon>
+</application>
