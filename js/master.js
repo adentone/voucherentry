@@ -1,5 +1,6 @@
 var db = new air.SQLConnection();
 var textFileDir = "VoucherEntry/text files/";  // on desktop
+var htmlFileDir = "VoucherEntry/report files/" // on desktop
 function setupDB() {
 	var dbFile = air.File.applicationStorageDirectory.resolvePath("db/voucherentry_live.db");
 	//In production, uncomment the if block to maintain the database.
@@ -55,7 +56,11 @@ function getInitials() {
 	return unescape(defaults.data[0].district_initials);
 }
 
-function exportFile() {
+function exportHtmlFile() {
+//	navigateToURL(new URLRequest(File.applicationStorageDirectory.nativePath + "/courses/" + fileName));
+}
+
+function exportTextFile() {
 	var today = new Date();
 	var dd = today.getDate();
 	var mm = today.getMonth()+1; // January is 0!
@@ -92,52 +97,85 @@ function exportFile() {
 function getExportText() {
 	var output = "";
 	var set_num = 1;
+	var set_data = [];
+	var num_sets = getNumVouchersets();
+
+	for( i=set_num; i<= num_sets; i++ ) {
+		if( $.trim($('#vendor_'+i).val()).length > 0 ) {
+			// if the voucher is filled in, get the data
+			set_data = getVouchersetData(i);
+			// compile output
+			output += ""
+				+ rPad( set_data['voucher'], set_data['voucher_length'] )
+				+ rPad( set_data['vendor'], set_data['vendor_length'] )
+				+ rPad( set_data['amount'], set_data['amount_length'] )
+				+ rPad( set_data['date'], set_data['date_length'] )
+				+ rPad( set_data['invoice'], set_data['invoice_length'] )
+				+ rPad( set_data['fund'], set_data['fund_length'] )
+				+ rPad( set_data['department'], set_data['department_length'] )
+				+ rPad( set_data['mystery'], set_data['mystery_length'] )
+				+ rPad( set_data['description'], set_data['description_length'] )
+				+ "\n";
+		}
+	}
 	
-	$('.voucherset input').each( function () {
-		id_parts = this.id.split("_");
-		current_set_num = id_parts[1];
-		if( current_set_num > set_num ) { // a new set has been started	
-			set_num = current_set_num;
-			output += "\n";
-		}
-
-		// add check to only output filled-out sets
-		if( $.trim($('#voucher_'+current_set_num).val()).length > 0 ) {
-			// air.trace( $(this).val()+", "+$(this).attr('maxlength') );
-			output += rPad( $(this).val(), $(this).attr('maxlength') );
-		}
-	});
-
 	if( output.length < 10 ) {
 		air.trace ("No voucher data to export.");
 		return "No voucher data to export.";
 	}
 	else {
+		air.trace( output );
 		return output.toUpperCase();
 	}
 }
 
-function rPad(start_string, length_required) {
-	start_string = start_string.toString()
-	while( start_string.length < length_required ) {
-		start_string += " ";
-	}
-	return start_string;
+function formatDate_YYYYMMDD(date_str) {
+	// assumes that date_str is currently DD/MM/YYYY
+	parts = date_str.split("/");
+	mm = parts[0];
+	dd = parts[1];
+	yyyy = parts[2];
+	if( mm.length != 2 ) { mm = "0"+mm; }
+   if( dd.length != 2 ) { dd = "0"+dd; }
+	return yyyy+mm+dd;
+}
+
+function getVouchersetData(setid) {
+	//air.trace( $('#voucherset_'+setid+' input:visible').length );
+	var set = [];
+	set['voucher']     = $.trim( $('#voucher_'+setid).val() );
+	set['voucher_length'] = $('#voucher_'+setid).attr('maxlength');
+	set['vendor']      = $.trim( $('#vendor_'+setid).val() );
+	set['vendor_length'] = $('#vendor_'+setid).attr('maxlength');
+	set['date']        = formatDate_YYYYMMDD( $.trim( $('#date_'+setid).val() ) );
+	set['date_length'] = $('#date_'+setid).attr('maxlength');
+	set['amount']      = $.trim( $('#amount_'+setid).val() );
+	set['amount_length'] = $('#amount_'+setid).attr('maxlength');
+	set['invoice']     = $.trim( $('#invoice_'+setid).val() );
+	set['invoice_length'] = $('#invoice_'+setid).attr('maxlength');
+	set['description'] = $.trim( $('#description_'+setid).val() );
+	set['description_length'] = $('#description_'+setid).attr('maxlength');
+	set['fund']        = $.trim( $('#fund_'+setid).val() );
+	set['fund_length'] = $('#fund_'+setid).attr('maxlength');
+	set['department']  = $.trim( $('#department_'+setid).val() );
+	set['department_length'] = $('#department_'+setid).attr('maxlength');
+	set['mystery']		 		= "3700";
+	set['mystery_length']	= 6;
+	return set;
 }
 
 function getVoucherset(setid) {
 	return ''
 	+ '<fieldset class="voucherset" id="voucherset_'+setid+'" style="display: none;">'
-	+ '	<div class="field"><label for="voucher_'+setid+'">Voucher ID</label><br /><input type="text" id="voucher_'+setid+'" name="voucher_'+setid+'" value="" class="voucherid" maxlength="8" style="width: 75px;" /></div>'
-	+ '	<div class="field"><label for="vendor_'+setid+'">Vendor ID</label><br /><input type="text" id="vendor_'+setid+'" name="vendor_'+setid+'" value="" class="vendorid" maxlength="10" style="width: 90px;" /></div>'
-	+ '	<div class="field"><label for="date_'+setid+'">Date</label><br /><input type="text" id="date_'+setid+'" name="date_'+setid+'" value="" class="datepicker" maxlength="10" style="width: 80px;" /></div>'
-	+ '	<div class="field"><label for="amount_'+setid+'">Amount</label><br /><input type="text" id="amount_'+setid+'" name="amount_'+setid+'" value="" class="currency" maxlength="12" style="width: 80px;" /></div>'
-	+ '	<div class="field"><label for="invoice_'+setid+'">Invoice Number</label><br /><input type="text" id="invoice_'+setid+'" name="invoice_'+setid+'" value="" maxlength="30" style="width: 250px;" /></div>'
-	+ '	<div class="field"><label for="description_'+setid+'">Description</label><input type="text" id="description_'+setid+'" name="description_'+setid+'" value="" maxlength="30" style="width: 250px;" /></div>'
-	+ '	<div class="field"><label for="fund_'+setid+'">Fund</label><input type="text" id="fund_'+setid+'" name="fund_'+setid+'" value="" maxlength="5" style="width: 90px;" /></div>'
-	+ '	<div class="field"><label for="department_'+setid+'">Dept</label><input type="text" id="department_'+setid+'" name="department_'+setid+'" value="" maxlength="7" style="width: 90px;" /></div>'
-	+ '</fieldset>'
-	+ '<input type="hidden" id="setid_'+setid+'" name="setid_'+setid+'" value="'+setid+'"';
+	+ '	<div class="field"><label for="voucher_'+setid+'">Voucher ID</label><br /><input type="text" id="voucher_'+setid+'" name="voucher_'+setid+'" value="2091" class="voucherid" maxlength="8" style="width: 75px;" /></div>'
+	+ '	<div class="field"><label for="vendor_'+setid+'">Vendor ID</label><br /><input type="text" id="vendor_'+setid+'" name="vendor_'+setid+'" value="MODEIRDI01" class="vendorid" maxlength="10" style="width: 90px;" /></div>'
+	+ '	<div class="field"><label for="date_'+setid+'">Date</label><br /><input type="text" id="date_'+setid+'" name="date_'+setid+'" value="11/16/2009" class="datepicker" maxlength="10" style="width: 80px;" /></div>'
+	+ '	<div class="field"><label for="amount_'+setid+'">Amount</label><br /><input type="text" id="amount_'+setid+'" name="amount_'+setid+'" value="8863.32" class="currency" maxlength="17" style="width: 80px;" /></div>'
+	+ '	<div class="field"><label for="invoice_'+setid+'">Invoice Number</label><br /><input type="text" id="invoice_'+setid+'" name="invoice_'+setid+'" value="" maxlength="28" style="width: 250px;" /></div>'
+	+ '	<div class="field"><label for="description_'+setid+'">Description</label><input type="text" id="description_'+setid+'" name="description_'+setid+'" value="PAYROLL / 11-15-09" maxlength="30" style="width: 250px;" /></div>'
+	+ '	<div class="field"><label for="fund_'+setid+'">Fund</label><input type="text" id="fund_'+setid+'" name="fund_'+setid+'" value="I30" maxlength="5" style="width: 90px;" /></div>'
+	+ '	<div class="field"><label for="department_'+setid+'">Dept</label><input type="text" id="department_'+setid+'" name="department_'+setid+'" value="18I" maxlength="7" style="width: 90px;" /></div>'
+	+ '</fieldset>'+"\n";
 }
 
 function hideAllBut(element_id) {
@@ -154,7 +192,7 @@ function getNumVouchersets() {
 function getNumEmptyVouchersets() {
 	total = getNumVouchersets();
 	num_voucherid = 0;
-	$('.voucherid').each( function() {
+	$('.vendorid').each( function() {
 		if( $.trim($(this).val()).length < 1 ) {
 			num_voucherid++;
 		}
@@ -223,6 +261,15 @@ function bindButtons() {
 	$('.nav #setup_close').bind("click", function() { saveDefaults(); hideAllBut("home"); });
 	$('.nav #entry_close').bind("click", function() { hideAllBut("home"); });
 	$('.nav #about_close').bind("click", function() { hideAllBut("home"); });
-	$('.nav #entry_export').bind("click", function() { exportFile(); });
-
+	$('.nav #entry_export').bind("click", function() { exportTextFile(); });
+	$('.nav #entry_print').bind("click", function() { getVouchersetData(1); });
+	
 }
+function rPad(start_string, length_required) {
+	start_string = start_string.toString()
+	while( start_string.length < length_required ) {
+		start_string += " ";
+	}
+	return start_string;
+}
+
