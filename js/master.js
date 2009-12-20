@@ -188,12 +188,12 @@ function getVoucherset(setid) {
 	default_date = (setid == 1) ? getDate() : $('#date_'+(setid-1)).val();
 	return ''
 	+ '<fieldset class="voucherset" id="voucherset_'+setid+'" style="display: none;">'
-	+ '	<div class="field"><label for="voucher_'+setid+'">Voucher ID</label><br /><input type="text" id="voucher_'+setid+'" name="voucher_'+setid+'" value="2091" class="voucherid" maxlength="8" style="width: 75px;" /></div>'
-	+ '	<div class="field"><label for="vendor_'+setid+'">Vendor ID</label><br /><input type="text" id="vendor_'+setid+'" name="vendor_'+setid+'" value="MODEIRDI01" class="vendorid" maxlength="10" style="width: 90px;" /></div>'
+	+ '	<div class="field"><label for="voucher_'+setid+'">Voucher ID</label><br /><input type="text" id="voucher_'+setid+'" name="voucher_'+setid+'" value="" class="voucherid" maxlength="8" style="width: 75px;" /></div>'
+	+ '	<div class="field"><label for="vendor_'+setid+'">Vendor ID</label><br /><input type="text" id="vendor_'+setid+'" name="vendor_'+setid+'" value="" class="vendorid" maxlength="10" style="width: 90px;" /></div>'
 	+ '	<div class="field"><label for="date_'+setid+'">Date</label><br /><input type="text" id="date_'+setid+'" name="date_'+setid+'" value="'+default_date+'" class="datepicker" maxlength="10" style="width: 80px;" /></div>'
-	+ '	<div class="field"><label for="amount_'+setid+'">Amount</label><br /><input type="text" id="amount_'+setid+'" name="amount_'+setid+'" value="8863.32" class="currency" maxlength="17" style="width: 80px;" /></div>'
+	+ '	<div class="field"><label for="amount_'+setid+'">Amount</label><br /><input type="text" id="amount_'+setid+'" name="amount_'+setid+'" value="" class="currency" maxlength="17" style="width: 80px;" /></div>'
 	+ '	<div class="field"><label for="invoice_'+setid+'">Invoice Number</label><br /><input type="text" id="invoice_'+setid+'" name="invoice_'+setid+'" value="" maxlength="28" style="width: 250px;" /></div>'
-	+ '	<div class="field"><label for="description_'+setid+'">Description</label><input type="text" id="description_'+setid+'" name="description_'+setid+'" value="PAYROLL / 11-15-09" maxlength="30" style="width: 250px;" /></div>'
+	+ '	<div class="field"><label for="description_'+setid+'">Description</label><input type="text" id="description_'+setid+'" name="description_'+setid+'" value="" maxlength="30" style="width: 250px;" /></div>'
 	+ '	<div class="field"><label for="fund_'+setid+'">Fund</label><input type="text" id="fund_'+setid+'" name="fund_'+setid+'" value="'+default_fund+'" maxlength="5" style="width: 90px;" /></div>'
 	+ '	<div class="field"><label for="department_'+setid+'">Dept</label><input type="text" id="department_'+setid+'" name="department_'+setid+'" value="'+default_dept+'" maxlength="7" style="width: 90px;" /></div>'
 	+ '</fieldset>'+"\n";
