@@ -1,13 +1,14 @@
 var db = new air.SQLConnection();
 var textFileDir = "VoucherEntry/text files/";  // on desktop
 var htmlFileDir = "VoucherEntry/report files/" // on desktop
+
 function setupDB() {
 	var dbFile = air.File.applicationStorageDirectory.resolvePath("db/voucherentry_live.db");
 	//In production, uncomment the if block to maintain the database.
-	//if (!dbFile.exists) {
+	if (!dbFile.exists) {
 		var dbTemplate = air.File.applicationDirectory.resolvePath("db/voucherentry.db");
 		dbTemplate.copyTo(dbFile, true);	
-	//}
+	}
 	try {
 		db.open(dbFile);
 	}
@@ -390,6 +391,11 @@ function applicationExit() {
 	// should I alert them if they haven't printed the report?
    air.NativeApplication.nativeApplication.exit();    
 	return false;
+}
+
+function openLinkInBrowser(url) {
+	var urlReq = new air.URLRequest(url);
+	air.navigateToURL(urlReq);
 }
 
 function bindButtons() {

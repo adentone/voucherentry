@@ -15,6 +15,10 @@
 		$(document).ready(function(){  
 			bindButtons();
 			setupDB();
+			$('a.externalLink').click(function(event){
+				openLinkInBrowser($(this).attr('href'));
+				return false;
+			});
 		});
 	</script>
 </head>
@@ -73,7 +77,7 @@
 				<p>This application is used to enter voucher information and create text files that are formatted according to the specifications required by the Accounts Payable Department of Spokane County.</p>
 				<br /><br />
 				<h4 class="blue">Developed by:</h4>
-				<p>Andy Dentone of www.pandawebworks.com</p>
+				<p>Andy Dentone of <a href="http://www.dentone.net/" class="externalLink">Dentone.net, LLC</a></p>
 			</div>
 			<div id="about_nav">
 				<ul class="nav horizontal">
