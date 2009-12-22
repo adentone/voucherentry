@@ -74,20 +74,54 @@ function getDepartment() {
 	return unescape(defaults.data[0].department);
 }
 
-function exportHtmlFile() {
-//	navigateToURL(new URLRequest(File.applicationStorageDirectory.nativePath + "/courses/" + fileName));
+function getDistrictName() {
+	defaults = getDefaults();
+	return unescape(defaults.data[0].district_name);
 }
 
-function exportTextFile() {
+function getExportFileName(extension) {
 	var today = new Date();
 	var dd = today.getDate();
 	var mm = today.getMonth()+1; // January is 0!
 	var yyyy = today.getFullYear();
    var initials = getInitials();
-	var filename = initials+yyyy+mm+dd+".txt";
+	return initials+yyyy+mm+dd+"."+extension;
+}
 
- 	// Create a reference to the target directory
-	var dir = air.File.desktopDirectory.resolvePath( textFileDir );
+function exportHtmlFile() {
+	var filename = getExportFileName("htm");
+	var dir = htmlFileDir;
+	var district_name = getDistrictName();
+	var output = getExportText();
+	var contents = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">' + "\n" 
+		+ '<html lang="en">' + "\n" 
+		+ "<head>\n"
+      + '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' + "\n"
+		+ "<title>"+filename+"</title>\n"
+		+ "<style type='text/css' media='print'>\n"
+		+ "   @page { size: landscape; margin: 2.5cm; }\n"
+		+ "</style>\n"
+		+ "</head>\n"
+		+ "<body onLoad='javascript:window.print()'>\n"
+		+ "<h1 style='text-align: center;'>"+district_name+"</h1>\n"
+		+ "<pre>\n"+output+"\n"+"</pre>\n"
+		+ "</body>\n"
+		+ "</html>\n";
+	exportFile(dir, filename, contents);
+	return dir+filename;
+}
+
+function exportTextFile() {
+	var filename = getExportFileName("txt");
+	var dir = textFileDir;
+	var contents = getExportText();
+	exportFile(dir, filename, contents);
+}
+
+function exportFile(directory, filename, contents) {
+	var dir = air.File.desktopDirectory.resolvePath( directory );
+	var file = air.File.desktopDirectory.resolvePath( directory+filename );
+
 	// Check to see if the directory exists.. if not, then create it
  	if ( !dir.exists ) {
 		dir.createDirectory();
@@ -96,7 +130,8 @@ function exportTextFile() {
  	else {
     	air.trace( "Directory already exists." );
  	}
-	var file = air.File.desktopDirectory.resolvePath( textFileDir+filename );
+
+	// Check to see if the directory exists.. if so, truncate it, if not, create it
 	if( !file.exists ) {
 		air.trace("File created.");
 	}
@@ -105,7 +140,6 @@ function exportTextFile() {
 	}
 	// Create a stream and open the file for writing
 	var stream = new air.FileStream();
-	var contents = getExportText();
 	stream.open( file, air.FileMode.WRITE );
 	stream.writeUTFBytes( "" );  // truncate file if it exists
 	stream.writeUTFBytes( contents );
@@ -283,7 +317,13 @@ function bindButtons() {
 	$('.nav #entry_close').bind("click", function() { hideAllBut("home"); });
 	$('.nav #about_close').bind("click", function() { hideAllBut("home"); });
 	$('.nav #entry_export').bind("click", function() { exportTextFile(); });
-	$('.nav #entry_print').bind("click", function() { getVouchersetData(1); });
+	$('.nav #entry_print').bind("click", function() { 
+		var exportFile = exportHtmlFile(); 
+		var path = air.File.desktopDirectory.resolvePath( exportFile );
+		air.trace(path.url);
+		var urlReq = new air.URLRequest(path.url);
+		air.navigateToURL(urlReq);
+	});
 	
 }
 function rPad(start_string, length_required) {
