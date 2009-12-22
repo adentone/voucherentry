@@ -92,19 +92,22 @@ function exportHtmlFile() {
 	var filename = getExportFileName("htm");
 	var dir = htmlFileDir;
 	var district_name = getDistrictName();
-	var output = getExportText();
+	var output = getExportHtml();
 	var contents = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">' + "\n" 
 		+ '<html lang="en">' + "\n" 
 		+ "<head>\n"
       + '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">' + "\n"
 		+ "<title>"+filename+"</title>\n"
+		+ "<style type='text/css' media='all'>\n"
+		+ "   html, body, pre { font-family: 'Lucida Sans', 'Courier New', Helvetica, Verdana, Arial; }\n"
+		+ "   td, th { text-align: left; padding: 3px; margin: 2px; }"
+		+ "</style>\n"
 		+ "<style type='text/css' media='print'>\n"
 		+ "   @page { size: landscape; margin: 2.5cm; }\n"
 		+ "</style>\n"
 		+ "</head>\n"
 		+ "<body onLoad='javascript:window.print()'>\n"
-		+ "<h1 style='text-align: center;'>"+district_name+"</h1>\n"
-		+ "<pre>\n"+output+"\n"+"</pre>\n"
+		+ output
 		+ "</body>\n"
 		+ "</html>\n";
 	exportFile(dir, filename, contents);
@@ -181,6 +184,81 @@ function getExportText() {
 	}
 }
 
+function getExportHtml() {
+	
+	var tbody = "";
+	var set_data = [];
+	var num_sets = getNumVouchersets();
+
+	for( i=1; i<= num_sets; i++ ) {
+		if( $.trim($('#vendor_'+i).val()).length > 0 ) {
+			// if the voucher is filled in, get the data
+			set_data = getVouchersetData(i);
+			// compile output
+			tbody += ""
+				+ "<tr>\n"
+				+ "   <td>" + set_data['voucher'] + "</td>\n"
+				+ "   <td>" + set_data['vendor'] + "</td>\n"
+				+ "   <td>" + set_data['date'] + "</td>\n"
+				+ "   <td>" + set_data['amount'] + "</td>\n"
+				+ "   <td>" + set_data['invoice'] + "</td>\n"
+				+ "   <td>" + set_data['fund'] + "</td>\n"
+				+ "   <td>" + set_data['department'] + "</td>\n"
+				+ "   <td>" + set_data['description'] + "</td>\n"
+				+ "</tr>\n";
+		}
+	}
+	
+	var today = new Date();
+	var weekday = new Array("Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday");
+	var month_name = new Array("January","February","March","April","May","June","July","August","September","October","November","December");
+	var district_name = getDistrictName();
+	var set_data = getVouchersetData(1);  // need to get lengths dynamicly
+	var numVouchersets = getNumVouchersets() - getNumEmptyVouchersets();
+	var totalAmount = formatUSD(getTotalAmount());
+	var printed_on = "<strong>Printed on:</strong> " + weekday[today.getDay()] + " " + today.getDate() + " " + month_name[today.getMonth()] + " " + today.getFullYear();
+	var footer = "<div id='footer' style='margin-top: 50px;'>"+printed_on+"</div>\n";
+	var thead = ""
+		+ "<tr>\n"
+		+ "   <th>Voucher ID</th>\n"
+		+ "   <th>Vendor ID</th>\n"
+		+ "   <th>Date</th>\n"
+		+ "   <th>Amount</th>\n"
+		+ "   <th>Invoice</th>\n"
+		+ "   <th>Fund</th>\n"
+		+ "   <th>Dept</th>\n"
+		+ "   <th>Description</th>\n"
+		+ "</tr>\n"
+	var tfoot = ""
+		+ "<tr style='font-weight: bold;'>\n"
+		+ "   <td colspan='2'>Total Number of Voucher(s): </td>\n"
+		+ "   <td>"+numVouchersets+"</td>"
+		+ "   <td colspan='5'>"+totalAmount+"</td>\n"
+		+ "</tr>\n"
+
+	var output = "<h1 style='text-align: center;'>"+district_name+"</h1>\n"
+				+ "<table id='report_data' border='0' width='90%'>\n"
+				+ thead + tbody 
+				+ tfoot 
+				+ "</table>\n"
+				+ footer;
+	return output;
+}
+
+function getTotalAmount() {
+	var amount = 0.0;
+	var total_amount = 0.0;
+	var num_sets = getNumVouchersets();
+	for( i=1; i<= num_sets; i++ ) {
+		amount = $.trim($('#amount_'+i).val());
+		if( amount.length > 2 ) {
+			// if the amount is filled in, get the data
+			total_amount += Number(amount);
+		}
+	}
+	return total_amount;
+}
+
 function formatDate_YYYYMMDD(date_str) {
 	// assumes that date_str is currently DD/MM/YYYY
 	parts = date_str.split("/");
@@ -190,6 +268,24 @@ function formatDate_YYYYMMDD(date_str) {
 	if( mm.length != 2 ) { mm = "0"+mm; }
    if( dd.length != 2 ) { dd = "0"+dd; }
 	return yyyy+mm+dd;
+}
+
+function formatUSD(num) {
+	num = num.toString().replace(/\$|\,/g,'');
+	if( isNaN(num) ) {
+		num = "0";
+	}
+	sign = (num == (num = Math.abs(num)));
+	num = Math.floor(num*100+0.50000000001);
+	cents = num%100;
+	num = Math.floor(num/100).toString();
+	if( cents < 10 ) {
+		cents = "0" + cents;
+	}
+	for (var i = 0; i < Math.floor((num.length-(1+i))/3); i++) {
+		num = num.substring(0,num.length-(4*i+3))+','+ num.substring(num.length-(4*i+3));
+	}
+	return (((sign)?'':'-') + '$' + num + '.' + cents);
 }
 
 function getVouchersetData(setid) {
@@ -244,8 +340,8 @@ function hideAllBut(element_id) {
 function getNumVouchersets() {
 	return $('.voucherset').size(); 
 }
+
 function getNumEmptyVouchersets() {
-	total = getNumVouchersets();
 	num_voucherid = 0;
 	$('.vendorid').each( function() {
 		if( $.trim($(this).val()).length < 1 ) {
@@ -326,6 +422,7 @@ function bindButtons() {
 	});
 	
 }
+
 function rPad(start_string, length_required) {
 	start_string = start_string.toString()
 	while( start_string.length < length_required ) {
