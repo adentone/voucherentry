@@ -34,8 +34,6 @@ and feedback to the email address below.
 ###   Contact information   ###
 Andy Dentone
 www.dentone.net
-andy@dentone.net
-509-991-9394  (Mon-Fri, 9AM - 4PM PST)
 
 
 ###   Version history   ###
