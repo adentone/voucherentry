@@ -8,9 +8,11 @@ function setupDB() {
 	if (!dbFile.exists) {
 		var dbTemplate = air.File.applicationDirectory.resolvePath("db/voucherentry.db");
 		dbTemplate.copyTo(dbFile, true);	
+		setupDefaults();
 	}
 	try {
 		db.open(dbFile);
+		hideAllBut("home");
 	}
 	catch (error) {
 		air.trace("DB error:", error.message);
@@ -238,7 +240,7 @@ function getExportHtml() {
 		+ "</tr>\n"
 
 	var output = "<h1 style='text-align: center;'>"+district_name+"</h1>\n"
-				+ "<table id='report_data' border='0' width='90%'>\n"
+				+ "<table id='report_data' border='0' width='95%'>\n"
 				+ thead + tbody 
 				+ tfoot 
 				+ "</table>\n"
@@ -398,6 +400,15 @@ function openLinkInBrowser(url) {
 	air.navigateToURL(urlReq);
 }
 
+function setupDefaults() {
+	defaults = getDefaults();
+	$('#district_name').val(unescape(defaults.data[0].district_name));
+	$('#district_initials').val(unescape(defaults.data[0].district_initials));
+	$('#default_fund').val(unescape(defaults.data[0].fund));
+	$('#default_dept').val(unescape(defaults.data[0].department));
+	hideAllBut("setup");
+}
+
 function bindButtons() {
 	$('.nav #home_voucher_entry').bind("click", function() { 
 		hideAllBut("entry"); 
@@ -405,14 +416,7 @@ function bindButtons() {
 			appendVoucherset();
 		}
 	});
-	$('.nav #home_edit_defaults').bind("click", function() { 
-		defaults = getDefaults();
-		$('#district_name').val(unescape(defaults.data[0].district_name));
-		$('#district_initials').val(unescape(defaults.data[0].district_initials));
-		$('#default_fund').val(unescape(defaults.data[0].fund));
-		$('#default_dept').val(unescape(defaults.data[0].department));
-		hideAllBut("setup"); 
-	});
+	$('.nav #home_edit_defaults').bind("click", function() { setupDefaults();	});
 	$('.nav #home_about').bind("click", function() { hideAllBut("about"); });
 	$('.nav #home_exit').bind("click", function() { applicationExit(); });
 	$('.nav #setup_close').bind("click", function() { saveDefaults(); hideAllBut("home"); });
