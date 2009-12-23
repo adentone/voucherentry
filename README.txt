@@ -40,5 +40,9 @@ www.dentone.net
 adt -package -storetype pkcs12 -keystore mycertificate.p12 VoucherEntry.air voucherentry.xml home.html lib/ db/ README.txt icons/
 
 
+###   Test with Adobe AIR SDK   ###
+adl voucherentry.xml
+
+
 ###   Version history   ###
 initial release:  0.8-beta on 22 Dec 2009
