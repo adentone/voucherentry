@@ -36,5 +36,9 @@ Andy Dentone
 www.dentone.net
 
 
+###   Build with Adobe AIR SDK   ###
+adt -package -storetype pkcs12 -keystore mycertificate.p12 VoucherEntry.air voucherentry.xml home.html lib/ db/ README.txt icons/
+
+
 ###   Version history   ###
 initial release:  0.8-beta on 22 Dec 2009
